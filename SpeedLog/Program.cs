@@ -7,8 +7,60 @@ namespace SpeedLog
 {
     class Program
     {
+
         static void Main(string[] args)
         {
+            Console.WriteLine("SpeedLog {log file with path} {seconds between checks} {if speed is slower that this in milliseconds, log it}");
+
+            string logPath = "";
+            int checkInterval = 10, maxDelay = 0;
+
+            if (args.Length == 0 || String.IsNullOrEmpty(args[0]))
+            {
+                logPath = System.IO.Path.GetTempPath() + "log.csv";
+                Console.WriteLine(String.Format("Empty first parameter, logging to {0}", logPath));
+            }
+            else
+            {
+                logPath = args[0];
+                Console.WriteLine(String.Format("First parameter supplied, logging to {0}", logPath));
+            }
+
+            if (args.Length < 2 || String.IsNullOrEmpty(args[1]))
+            {
+                Console.WriteLine("Empty second parameter for interval, using 10 seconds");
+            }
+            else
+            {
+                if (Int32.TryParse(args[1], out checkInterval))
+                {
+                    Console.WriteLine("Second parameter supplied, using {0} for interval", checkInterval);
+                }
+                else
+                {
+                    Console.WriteLine("Invalid second parameter for interval, using 10 seconds");
+                    checkInterval = 10;
+                }
+            }
+
+            if (args.Length < 3 || String.IsNullOrEmpty(args[2]))
+            {
+                Console.WriteLine("Empty third parameter for max delay, using 0 seconds");
+            }
+            else
+            {
+                if (Int32.TryParse(args[2], out maxDelay))
+                {
+                    Console.WriteLine("Third parameter supplied, using {0} for max delay", maxDelay);
+                }
+                else
+                {
+                    Console.WriteLine("Invalid third parameter for max delay, using 0 seconds");
+                    maxDelay = 0;
+                }
+            }
+
+
             Console.WriteLine("Press ESC to stop");
 
             Stopwatch stopWatch = new Stopwatch();
@@ -19,6 +71,8 @@ namespace SpeedLog
             {
                 using (WebClient Client = new WebClient())
                 {
+                    bool logIt = true;
+
                     try
                     {
                         stopWatch.Start();
@@ -31,29 +85,35 @@ namespace SpeedLog
                         stopWatch.Stop();
                         TimeSpan ts2 = stopWatch.Elapsed;
 
-                        result = String.Format(@"{0:yyyy-MM-ddTHH:mm:ss.fffffffzz},{1:00}ms,{2:00}ms", DateTime.Now, ts1.Milliseconds, ts2.Milliseconds);
+                        logIt = maxDelay == 0 || ts1.Milliseconds > maxDelay || ts2.Milliseconds > maxDelay;
+
+                        result = String.Format(@"{0:yyyy-MM-ddTHH:mm:ss.fffffffzz},{1:00},{2:00}", DateTime.Now, ts1.Milliseconds, ts2.Milliseconds);
                     }
                     catch
                     {
-                        result = String.Format(@"{0:yyyy-MM-ddTHH:mm:ss.fffffffzz},timeout", DateTime.Now);
+                        result = String.Format(@"{0:yyyy-MM-ddTHH:mm:ss.fffffffzz},0,0,", DateTime.Now);
                     }
 
                     try
                     {
-                        using (StreamWriter file = File.AppendText(@"c:\temp\speedlog.csv"))
+                        using (StreamWriter file = File.AppendText(logPath))
                         {
-                            file.WriteLine(result);
-                            Console.WriteLine(result);
+                            if (logIt)
+                            {
+                                file.WriteLine(result);
+                                Console.WriteLine(result);
+                            }
                         }
                     }
                     catch
                     {
+                        if (logIt)                            
                         Console.WriteLine(String.Format("{0:MM/dd/yy H:mm:ss} error writing to log file", DateTime.Now));
                     }
 
                 }
 
-                keyPressed = ConsoleHelper.ReadKeyWithTimeOut(10000);
+                keyPressed = ConsoleHelper.ReadKeyWithTimeOut(checkInterval * 1000);
 
                 if (keyPressed.Key == ConsoleKey.Spacebar)
                 {
