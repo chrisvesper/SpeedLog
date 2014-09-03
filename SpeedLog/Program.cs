@@ -87,11 +87,11 @@ namespace SpeedLog
 
                         logIt = maxDelay == 0 || ts1.Milliseconds > maxDelay || ts2.Milliseconds > maxDelay;
 
-                        result = String.Format(@"{0:yyyy-MM-ddTHH:mm:ss.fffffffzz},{1:00},{2:00}", DateTime.Now, ts1.Milliseconds, ts2.Milliseconds);
+                        result = String.Format(@"{0:yyyy-MM-ddTHH:mm:sszz},{1:00},{2:00}", DateTime.Now, ts1.Milliseconds, ts2.Milliseconds);
                     }
                     catch
                     {
-                        result = String.Format(@"{0:yyyy-MM-ddTHH:mm:ss.fffffffzz},0,0,", DateTime.Now);
+                        result = String.Format(@"{0:yyyy-MM-ddTHH:mm:sszz},0,0", DateTime.Now);
                     }
 
                     try
@@ -108,7 +108,7 @@ namespace SpeedLog
                     catch
                     {
                         if (logIt)                            
-                        Console.WriteLine(String.Format("{0:MM/dd/yy H:mm:ss} error writing to log file", DateTime.Now));
+                        Console.WriteLine(String.Format("{0:MM/dd/yy H:mm:sszz} error writing to log file", DateTime.Now));
                     }
 
                 }
