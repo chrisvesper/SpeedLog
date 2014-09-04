@@ -10,7 +10,11 @@ namespace SpeedLog
 
         static void Main(string[] args)
         {
-            Console.WriteLine("SpeedLog {log file with path} {seconds between checks} {if speed is slower that this in milliseconds, log it}");
+            Console.WriteLine("SpeedLog has 3 optional parameters:");
+            Console.WriteLine("{log file with path}");
+            Console.WriteLine("{seconds between checks}");
+            Console.WriteLine("{if speed is slower that this in milliseconds, log it}");
+            Console.WriteLine();
 
             string logPath = "";
             int checkInterval = 10, maxDelay = 0;
@@ -34,7 +38,7 @@ namespace SpeedLog
             {
                 if (Int32.TryParse(args[1], out checkInterval))
                 {
-                    Console.WriteLine("Second parameter supplied, using {0} for interval", checkInterval);
+                    Console.WriteLine("Second parameter supplied, using {0} seconds for interval", checkInterval);
                 }
                 else
                 {
@@ -45,7 +49,7 @@ namespace SpeedLog
 
             if (args.Length < 3 || String.IsNullOrEmpty(args[2]))
             {
-                Console.WriteLine("Empty third parameter for max delay, using 0 seconds");
+                Console.WriteLine("Empty third parameter for max delay, using 100 milliseconds");
             }
             else
             {
@@ -55,7 +59,7 @@ namespace SpeedLog
                 }
                 else
                 {
-                    Console.WriteLine("Invalid third parameter for max delay, using 0 seconds");
+                    Console.WriteLine("Invalid third parameter for max delay, using 100 milliseconds");
                     maxDelay = 0;
                 }
             }
